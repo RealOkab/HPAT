@@ -1,54 +1,43 @@
-# React + TypeScript + Vite
+HPAT Software
+Health Promotion Assessment & Tracking System
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+🌟 Overview
+HPAT is a robust software solution designed for Health Promotion Officers to efficiently track and analyze health promotion activities. Built with React + TypeScript + Vite and powered by the MERN stack (MongoDB, Express.js, React, Node.js), it provides fast performance and seamless user experience.
 
-Currently, two official plugins are available:
+🚀 Features
+Optimized with Vite for fast builds and development
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Intuitive dashboard for monitoring health programs
 
-## Expanding the ESLint configuration
+Secure authentication & role-based access
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+Real-time data synchronization
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+Mobile-friendly design for accessibility anywhere
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+🛠️ Tech Stack
+Frontend: React, TypeScript, Vite
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Backend: Node.js, Express.js
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+Database: MongoDB
+
+Authentication: JWT, OAuth
+
+Deployment: Docker, AWS
+
+📦 Installation
+Backend Setup
+bash
+cd backend  
+npm install  
+nodemon start app.ts 
+Frontend Setup (Vite + React)
+bash
+cd frontend  
+npm install  
+npm run dev  
+🔧 Contributing
+Contributions are welcome! Feel free to submit issues or pull requests to enhance HPAT.
+
+📜 License
