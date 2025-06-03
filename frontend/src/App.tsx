@@ -1,3 +1,4 @@
+import RegisterInformationCenter from "@pages/InformationCenters/RegisterInformationCenter";
 import { Suspense, lazy } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 
@@ -26,6 +27,11 @@ function App() {
             <Route
               path="/registerDistricts/viewAll"
               element={<ReadDistricts />}
+            />
+
+            <Route
+              path="/registeredDistrict/:districtId/registerCiC"
+              element={<RegisterInformationCenter />}
             />
           </Routes>
         </BrowserRouter>

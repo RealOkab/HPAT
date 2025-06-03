@@ -1,12 +1,16 @@
 import React from "react";
 import { useCustomFetch } from "@hooks/useCustomFetch";
+import Buttons from "@components/Buttons";
+import { useNavigate } from "react-router-dom";
 
 interface District {
   districtName: string;
   state: string;
   country: string;
+  _id?: string;
 }
 export default function ReadDistricts() {
+  const navigate = useNavigate();
   const { data = [], error } = useCustomFetch(
     `/hpat/registerDistricts/viewAll`
   );
@@ -36,6 +40,12 @@ export default function ReadDistricts() {
           </h2>
           <p className="text-gray-600">State: {district.state}</p>
           <p className="text-gray-600">Country: {district.country}</p>
+          <Buttons
+            onClick={() => navigate(`/viewRegisteredDistrict/${district._id}`)}
+            className="mt-4 bg-blue-600 text-gray-200 hover:bg-blue-700 px-2 py-2 rounded"
+          >
+            View Details
+          </Buttons>
         </div>
       ))}
     </section>

@@ -16,6 +16,12 @@ const districtSchema = new Schema({
     type: String,
     required: true,
   },
+  informmationCenters: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "InformationCenter",
+    },
+  ],
 });
 
 export default mongoose.model("District", districtSchema);

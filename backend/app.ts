@@ -5,6 +5,8 @@ import mongoDbConfig from "./configs/mongoDBConnect";
 import districtSchema from "./models/DistrictSchema";
 import { Request, Response, NextFunction } from "express";
 import handleAsync from "./utils/handleAsync";
+import informationCenter from "./models/InformationCenterSchema";
+const port = process.env.PORT || 5000;
 
 const app = express();
 //const mongoURI = process.env.MONGO_URI || "mongodb://localhost:27017/mydatabase";
@@ -15,6 +17,12 @@ dotenv.config();
 app.use(cors());
 app.use(express.json());
 
+type district = {
+  districtName: string;
+  state: string;
+  country: string;
+  informmationCenters?: unknown[];
+};
 app.post(
   "/hpat/registerDistricts",
   handleAsync(async (req: Request, res: Response) => {
@@ -72,11 +80,39 @@ app.get(
   })
 );
 
-const port = process.env.PORT || 5000;
+// Registration of cics starts here.
+app.post(
+  "/hpat/registeredDistrict/:districtId/registerCiC",
+  handleAsync(async (req: Request, res: Response) => {
+    try {
+      const { districtId } = req.params;
+      const { informationCenterName, gpsLocation, subDistrict, description } =
+        req.body;
+      const district = await districtSchema.findById(districtId);
+      if (!district) {
+        return res.status(404).json({ message: "District not found" });
+      }
+      const newCiC = new informationCenter({
+        informationCenterName,
+        description,
+        gpsLocation,
+        subDistrict,
+      });
+
+      await newCiC.save();
+
+      district.informmationCenters.push(newCiC._id);
+      await district.save();
+
+      res.status(201).json(newCiC);
+    } catch (error) {
+      res.status(500).json({
+        message: "An error occurred while registering the information center",
+      });
+    }
+  })
+);
+
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
-});
-
-app.listen(() => {
-  console.log("Server is running on port 5000");
 });

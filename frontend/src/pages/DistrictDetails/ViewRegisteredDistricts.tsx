@@ -37,7 +37,7 @@ function ViewRegisteredDistricts() {
       {error && <p>{error}</p>}
       {district && (
         <div className="flex w-[30rem]  h-[30rem] rounded-2xl  items-center justify-center  bg-gray-100 shadow shadow-blue-500/50 bg-gradient-to-br from-blue-500 via-white to-green-600">
-          <div className="relative h-[100%] w-[100%] bg-white rounded-lg shadow-md p-8 space-y-4 overflow-hidden">
+          <div className="relative h-[100%] w-[100%] bg-white rounded-lg shadow-md p-8 space-y-4 overflow-hidden flex flex-col">
             <h2 className="text-2xl font-bold text-gray-800 text-center">
               Registered District
             </h2>
@@ -63,12 +63,15 @@ function ViewRegisteredDistricts() {
                 </span>
               </div>
             </div>
+            <Buttons
+              onClick={() => navigate("/registerDistricts/viewAll")}
+              className="mt-4 bg-blue-600 text-gray-200 hover:bg-blue-700 px-2 py-2 rounded"
+            >
+              View Registered Districts
+            </Buttons>
           </div>
         </div>
       )}
-      <Buttons onClick={() => navigate("/registerDistricts")}>
-        View Registered Districts
-      </Buttons>
     </div>
   );
 }
