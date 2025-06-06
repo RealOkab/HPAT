@@ -1,75 +1,94 @@
-import Buttons from "@components/Buttons";
-import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useCustomFetch } from "@hooks/useCustomFetch";
+import Buttons from "@components/Buttons";
 
-interface District {
-  districtName: string;
-  state: string;
+interface InformationCenter {
+  informationCenterName: string;
+  gpsLocation: string;
+  gpsLocationAccuracy: string;
+  subDistrict: string;
+  description: string;
+  _id?: string;
+}
+
+interface DistrictData {
   country: string;
+  districtName: string;
+  informationCenters: InformationCenter[];
+  state: string;
+  _id?: string;
 }
 
 function ViewRegisteredDistricts() {
+  const { APICall, fetchedData, error } = useCustomFetch();
   const navigate = useNavigate();
-
   const { districtId } = useParams();
-  const [district, setDistrict] = useState<District | null>(null);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchData = async () => {
-      axios
-        .get(`/hpat/registeredDistrict/${districtId}`)
-        .then((res) => {
-          setDistrict(res.data);
-          console.log(res.data);
-        })
-        .catch((err) => {
-          console.log(err);
-          setError("District not found");
-        });
-    };
-    fetchData();
-  }, [districtId]);
+    if (!fetchedData) {
+      APICall(`/hpat/registeredDistrict/${districtId}`, "get");
+    }
+  }, [APICall, fetchedData, districtId]);
 
   return (
-    <div>
-      {error && <p>{error}</p>}
-      {district && (
-        <div className="flex w-[30rem]  h-[30rem] rounded-2xl  items-center justify-center  bg-gray-100 shadow shadow-blue-500/50 bg-gradient-to-br from-blue-500 via-white to-green-600">
-          <div className="relative h-[100%] w-[100%] bg-white rounded-lg shadow-md p-8 space-y-4 overflow-hidden flex flex-col">
-            <h2 className="text-2xl font-bold text-gray-800 text-center">
-              Registered District
-            </h2>
-            <div className="space-y-6 h-[70%] bg-white p-6 rounded-lg shadow-md">
-              <div>
-                <p className="text-gray-600 text-sm font-semibold">
-                  District Name:
-                </p>
-                <span className="text-2xl font-medium text-gray-900">
-                  {district.districtName}
-                </span>
-              </div>
-              <div className="border-t border-gray-200 pt-4">
-                <p className="text-gray-600 text-sm font-semibold">State:</p>
-                <span className="text-lg font-medium text-gray-800">
-                  {district.state}
-                </span>
-              </div>
-              <div className="border-t border-gray-200 pt-4">
-                <p className="text-gray-600 text-sm font-semibold">Country:</p>
-                <span className="text-lg font-medium text-gray-800">
-                  {district.country}
-                </span>
-              </div>
+    <div className="flex justify-center items-center h-screen  w-[90%] bg-transparent">
+      {error && <p className="text-red-500 font-semibold">{error}</p>}
+
+      {fetchedData && (
+        <div className="w-full max-w-lg rounded-xl bg-white shadow-lg p-6 space-y-6 transition-transform transform hover:scale-105">
+          <h2 className="text-3xl font-bold text-gray-800 text-center">
+            Registered District
+          </h2>
+
+          <div className="space-y-4 bg-gray-50 p-5 rounded-lg shadow-sm">
+            <div className="border-b pb-3">
+              <p className="text-gray-600 text-sm font-semibold">
+                District Name:
+              </p>
+              <span className="text-xl font-medium text-gray-900">
+                {(fetchedData as DistrictData).districtName}
+              </span>
             </div>
+
+            <div className="border-b pb-3">
+              <p className="text-gray-600 text-sm font-semibold">State:</p>
+              <span className="text-lg font-medium text-gray-800">
+                {(fetchedData as DistrictData).state}
+              </span>
+            </div>
+
+            <div className="border-b pb-3">
+              <p className="text-gray-600 text-sm font-semibold">Country:</p>
+              <span className="text-lg font-medium text-gray-800">
+                {(fetchedData as DistrictData).country}
+              </span>
+            </div>
+
+            <div>
+              <p className="text-gray-600 text-sm font-semibold">
+                No. of CiCs:
+              </p>
+              <span className="text-lg font-medium text-gray-800">
+                {(fetchedData as DistrictData).informationCenters.length}
+              </span>
+            </div>
+          </div>
+
+          <section className="flex flex-row ">
             <Buttons
               onClick={() => navigate("/registerDistricts/viewAll")}
-              className="mt-4 bg-blue-600 text-gray-200 hover:bg-blue-700 px-2 py-2 rounded"
+              className=" mt-4 mr-4 w-[70%] bg-blue-600 text-white font-semibold py-2 rounded-lg shadow-md hover:bg-blue-700 transition-transform transform hover:scale-105"
             >
               View Registered Districts
             </Buttons>
-          </div>
+            <Buttons
+              onClick={() => navigate("/registerDistricts/viewAll")}
+              className="w-[30%] mt-4 bg-green-600 text-white font-semibold py-2 rounded-lg shadow-md hover:bg-green-700 transition-transform transform hover:scale-105"
+            >
+              View CiCs
+            </Buttons>
+          </section>
         </div>
       )}
     </div>

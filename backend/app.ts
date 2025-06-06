@@ -2,10 +2,10 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import mongoDbConfig from "./configs/mongoDBConnect";
-import districtSchema from "./models/DistrictSchema";
+import DistrictSchema from "./models/DistrictSchema";
 import { Request, Response, NextFunction } from "express";
 import handleAsync from "./utils/handleAsync";
-import informationCenter from "./models/InformationCenterSchema";
+import InformationCenter from "./models/InformationCenterSchema";
 const port = process.env.PORT || 5000;
 
 const app = express();
@@ -30,7 +30,7 @@ app.post(
     const { districtName, state, country } = req.body;
 
     try {
-      const district = new districtSchema({
+      const district = new DistrictSchema({
         districtName: districtName,
         state: state,
         country: country,
@@ -53,7 +53,7 @@ app.get(
   handleAsync(async (req: Request, res: Response) => {
     const { districtId } = req.params;
     try {
-      const district = await districtSchema.findById(districtId);
+      const district = await DistrictSchema.findById(districtId);
       if (!district) {
         return res.status(404).json({ message: "District not found" });
       }
@@ -70,7 +70,7 @@ app.get(
   "/hpat/registerDistricts/viewAll",
   handleAsync(async (req: Request, res: Response) => {
     try {
-      const allDistricts = await districtSchema.find();
+      const allDistricts = await DistrictSchema.find();
       res.status(200).json(allDistricts);
     } catch (error) {
       res
@@ -83,35 +83,87 @@ app.get(
 // Registration of cics starts here.
 app.post(
   "/hpat/registeredDistrict/:districtId/registerCiC",
-  handleAsync(async (req: Request, res: Response) => {
+  handleAsync(async (req, res) => {
     try {
       const { districtId } = req.params;
-      const { informationCenterName, gpsLocation, subDistrict, description } =
-        req.body;
-      const district = await districtSchema.findById(districtId);
+      const {
+        informationCenterName,
+        gpsLocation,
+        subDistrict,
+        description,
+        gpsLocationAccuracy,
+      } = req.body;
+
+      console.log("Received request for district:", districtId);
+      console.log("Request body:", req.body);
+
+      // ✅ Check if district exists
+      const district = await DistrictSchema.findById(districtId);
       if (!district) {
         return res.status(404).json({ message: "District not found" });
       }
-      const newCiC = new informationCenter({
+
+      const newCiC = new InformationCenter({
         informationCenterName,
-        description,
         gpsLocation,
         subDistrict,
+        description,
+        gpsLocationAccuracy,
       });
-
       await newCiC.save();
 
-      district.informmationCenters.push(newCiC._id);
+      district.informationCenters.push(newCiC._id);
       await district.save();
 
-      res.status(201).json(newCiC);
-    } catch (error) {
-      res.status(500).json({
-        message: "An error occurred while registering the information center",
+      console.log("New Information Center registered:", newCiC);
+
+      res.status(201).json({
+        newCiC,
+        message: "Information center registered successfully",
+        district,
       });
+    } catch (error) {
+      console.error("Error during registration:", error);
+      res
+        .status(500)
+        .json({ message: "An error occurred during registration" });
     }
   })
 );
+
+
+app.get(
+  "/hpat/registeredDistrict/:districtId/registeredCiC/:informationCenterId/view",
+  handleAsync(async (req: Request, res: Response) => {
+    const { districtId, informationCenterId } = req.params;
+
+    try {
+      const district = await DistrictSchema.findById(districtId).populate({
+        path: "informationCenters",
+        match: { _id: informationCenterId },
+      });
+
+      if (!district) {
+        return res.status(404).json({ message: "District not found" });
+      }
+
+      const informationCenter = district.informationCenters.find(
+        (ic) => ic._id.toString() === informationCenterId
+      );
+
+      if (!informationCenter) {
+        return res.status(404).json({ message: "Information Center not found" });
+      }
+
+      res.status(200).json(informationCenter);
+    } catch (error) {
+      console.error("Error fetching Information Center:", error);
+      res
+        .status(500)
+        .json({ message: "An error occurred while fetching the Information Center" });
+    }
+  })
+);  
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);

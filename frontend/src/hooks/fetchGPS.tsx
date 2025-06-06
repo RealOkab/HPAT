@@ -8,12 +8,17 @@ interface GeolocationPosition {
 export default function FetchGPS() {
   const [location, setLocation] = useState<GeolocationPosition | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
   useEffect(() => {
     const watchId = navigator.geolocation.watchPosition(
       (position) => {
+        setLocation(position);
+
         if (position.coords.accuracy < 10) {
-          setLocation(position);
+          setSuccess(
+            " `Accuracy very good: ${position.coords.accuracy} meters. You can procced.`"
+          );
           navigator.geolocation.clearWatch(watchId); //
         } else {
           setError(
@@ -28,5 +33,5 @@ export default function FetchGPS() {
     return () => navigator.geolocation.clearWatch(watchId);
   }, []);
 
-  return { location, error };
+  return { location, error, success };
 }

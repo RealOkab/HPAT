@@ -16,7 +16,7 @@ const districtSchema = new Schema({
     type: String,
     required: true,
   },
-  informmationCenters: [
+  informationCenters: [
     {
       type: Schema.Types.ObjectId,
       ref: "InformationCenter",

@@ -15,6 +15,10 @@ const InformationCenterSchema = new Schema({
     type: String,
     required: true,
   },
+  gpsLocationAccuracy: {
+    type: Number,
+    required: true,
+  },
   description: {
     type: String,
     required: true,

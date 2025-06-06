@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useCustomFetch } from "@hooks/useCustomFetch";
 import Buttons from "@components/Buttons";
 import { useNavigate } from "react-router-dom";
@@ -8,46 +8,73 @@ interface District {
   state: string;
   country: string;
   _id?: string;
+  informationCenters?: InformationCenter[];
 }
+
+interface InformationCenter {
+  informationCenterName: string;
+  gpsLocation: string;
+  gpsLocationAccuracy: string;
+  subDistrict: string;
+  description: string;
+  _id?: string;
+}
+
 export default function ReadDistricts() {
   const navigate = useNavigate();
-  const { data = [], error } = useCustomFetch(
-    `/hpat/registerDistricts/viewAll`
-  );
+  const { fetchedData, APICall } = useCustomFetch();
 
-  console.log(data, error);
+  useEffect(() => {
+    if (!fetchedData)
+      APICall("http://localhost:5000/hpat/registerDistricts/viewAll", "get");
+  }, [fetchedData, APICall]);
 
-  if (!data) {
+  if (!fetchedData) {
     return (
-      <div className="container mx-auto p-4">
-        <div
-          className="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded relative"
-          role="alert"
-        >
-          <strong className="font-bold">Loading...</strong> Please wait.
+      <div className="flex justify-center items-center h-screen">
+        <div className="bg-blue-100 border border-blue-400 text-blue-700 px-6 py-4 rounded-md shadow-md">
+          <strong className="font-bold text-lg">Loading...</strong>
+          <p className="text-sm">
+            Please wait while we fetch the registered districts.
+          </p>
         </div>
       </div>
     );
   }
 
   return (
-    <section className="flex flex-row flex-wrap items-start  h-[100vh] justify-start gap-4 p-4 ">
-      {data?.map((district: District, index: number) => (
-        <div key={index} className="bg-white shadow-md rounded-lg p-4 ">
-          {index + 1}.
-          <h2 className="text-lg font-semibold text-gray-800">
-            {district.districtName}
-          </h2>
-          <p className="text-gray-600">State: {district.state}</p>
-          <p className="text-gray-600">Country: {district.country}</p>
-          <Buttons
-            onClick={() => navigate(`/viewRegisteredDistrict/${district._id}`)}
-            className="mt-4 bg-blue-600 text-gray-200 hover:bg-blue-700 px-2 py-2 rounded"
+    <section className="flex flex-wrap justify-center items-start gap-6 p-6 bg-gray-100 min-h-screen">
+      {Array.isArray(fetchedData) &&
+        fetchedData?.map((district, index: number) => (
+          <div
+            key={index}
+            className="bg-white shadow-lg rounded-lg p-5 w-72 hover:scale-105 transition-transform duration-200"
           >
-            View Details
-          </Buttons>
-        </div>
-      ))}
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-semibold text-gray-800">
+                {(district as District).districtName}
+              </h2>
+              <span className="text-gray-500 text-sm">#{index + 1}</span>
+            </div>
+            <p className="text-gray-600 mt-2">
+              🏛 <span className="font-medium">State:</span>{" "}
+              {(district as District).state}
+            </p>
+            <p className="text-gray-600">
+              🌍 <span className="font-medium">Country:</span>{" "}
+              {(district as District).country}
+            </p>
+
+            <Buttons
+              onClick={() =>
+                navigate(`/viewRegisteredDistrict/${district._id}`)
+              }
+              className="w-full mt-4 bg-blue-600 text-white font-semibold py-2 rounded-lg shadow-md hover:bg-blue-700 transition-transform transform hover:scale-105"
+            >
+              View Details
+            </Buttons>
+          </div>
+        ))}
     </section>
   );
 }
