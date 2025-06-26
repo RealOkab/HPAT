@@ -16,6 +16,13 @@ const districtSchema = new Schema({
     type: String,
     required: true,
   },
+
+jingles: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Jingle",
+    },
+  ],  
   informationCenters: [
     {
       type: Schema.Types.ObjectId,

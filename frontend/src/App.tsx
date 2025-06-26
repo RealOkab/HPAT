@@ -20,7 +20,7 @@ const CiCMaps = lazy(() => import("@pages/InformationCenters/CicMaps"));
 const ViewRegisteredCIC = lazy(
   () => import("@pages/InformationCenters/ViewRegisteredCIC")
 );
-
+const UploadJingle = lazy(() => import("@pages/Jingles/UploadJingle"));
 
 function App() {
   return (
@@ -55,6 +55,11 @@ function App() {
             <Route
               path="/registeredDistrict/:districtId/registeredCiC/:cicId"
               element={<ViewRegisteredCIC />}
+            />
+
+            <Route
+              path="/jingles/upload/:districtId"
+              element={<UploadJingle />}
             />
           </Routes>
         </BrowserRouter>

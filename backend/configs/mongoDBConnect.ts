@@ -1,15 +1,25 @@
 import mongoose from "mongoose";
+import dotenv from "dotenv";
+import multer from "multer";
+import { GridFSBucket } from "mongodb";
+dotenv.config();
 
-const mongoDbConfig = () => {
-  const dataBaseString = "mongodb://172.20.144.1:27017/HPAT-DB";
-  mongoose
-    .connect(dataBaseString, { connectTimeoutMS: 5000 })
-    .then(() => {
-      console.log("Connected to MongoDB");
-    })
-    .catch((err) => {
-      console.log("Error connecting to MongoDB", err);
+let bucket: GridFSBucket;
+
+const mongoDbConfig = async () => {
+  const dataBaseString =
+    process.env.MONGO_URI || "mongodb://172.20.144.1:27017/HPAT-DB";
+  try {
+    await mongoose.connect(dataBaseString, { connectTimeoutMS: 5000 });
+    console.log("Connected to MongoDB");
+    // @ts-ignore
+    bucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db, {
+      bucketName: "uploads",
     });
+    console.log("GridFSBucket ready");
+  } catch (err) {
+    console.log("Error connecting to MongoDB", err);
+  }
 };
 
 export default mongoDbConfig;

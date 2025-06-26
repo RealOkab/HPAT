@@ -1,18 +1,29 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import multer from "multer";
+import mongoose from "mongoose";
+import { GridFSBucket, MongoClient } from "mongodb";
+import { Readable } from "stream";
 import mongoDbConfig from "./configs/mongoDBConnect";
+
 import DistrictSchema from "./models/DistrictSchema";
 import { Request, Response, NextFunction } from "express";
 import handleAsync from "./utils/handleAsync";
 import InformationCenter from "./models/InformationCenterSchema";
-const port = process.env.PORT || 5000;
+import Jingle from "./models/Jingles";
 
+const port = process.env.PORT || 5000;
 const app = express();
 //const mongoURI = process.env.MONGO_URI || "mongodb://localhost:27017/mydatabase";
 
 mongoDbConfig();
 dotenv.config();
+
+let bucket: GridFSBucket;
+
+const storage = multer.memoryStorage(); // Store files in memory as buffers
+const upload = multer({ storage });
 
 app.use(cors());
 app.use(express.json());
@@ -187,6 +198,87 @@ app.get(
       res.status(500).json({
         message: "An error occurred while fetching the Information Center",
       });
+    }
+  })
+);
+
+//routes for jingle uploads
+app.post(
+  "/hpat/jingles/upload/:districtId",
+  upload.single("audio"),
+  handleAsync(async (req, res) => {
+    console.log("Received request to upload jingle");
+    if (!req.file) {
+      //console.log("No file uploaded");
+      return res.status(400).send("No file uploaded");
+    }
+    const { districtId } = req.params;
+    //console.log("District ID:", districtId);
+
+    const district = await DistrictSchema.findById(districtId);
+    if (!district) {
+      // console.log("District not found for ID:", districtId);
+      return res.status(404).json({ message: "District not found" });
+    }
+
+    // Initialize GridFSBucket if not already initialized
+    if (!bucket) {
+      // @ts-ignore
+      bucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db, {
+        bucketName: "uploads",
+      });
+      //console.log("Initialized GridFSBucket");
+    }
+
+    const readableStream = Readable.from(req.file.buffer);
+    //console.log("Created readable stream from file buffer");
+
+    const uploadStream = bucket.openUploadStream(req.file.originalname, {
+      contentType: req.file.mimetype,
+    });
+    //console.log("Opened upload stream for file:", req.file.originalname);
+
+    readableStream.pipe(uploadStream);
+
+    uploadStream
+      .on("error", (err) => {
+        // console.error("Error uploading file to GridFS:", err);
+        res.status(500).send(err.message);
+      })
+      .on("finish", async () => {
+        console.log("File uploaded to GridFS with ID:", uploadStream.id);
+        const newJingle = new Jingle({
+          filename: req.file?.originalname,
+          district: districtId,
+        });
+        await newJingle.save();
+        //console.log("Jingle document saved to DB:", newJingle);
+        res.status(201).send({
+          fileId: uploadStream.id,
+          message: "Jingle uploaded and saved successfully",
+        });
+      });
+  })
+);
+
+// Endpoint to fetch jingles for a specific district
+app.get(
+  "/hpat/jingles/:districtId",
+  handleAsync(async (req, res) => {
+    const { districtId } = req.params;
+    try {
+      const jingles = await Jingle.find({ district: districtId });
+      if (!jingles || jingles.length === 0) {
+        return res
+          .status(404)
+          .json({ message: "No jingles found for this district" });
+      }
+      res.status(200).json(jingles);
+    } catch (error) {
+      console.error("Error fetching jingles:", error);
+      res
+        .status(500)
+        .json({ message: "An error occurred while fetching jingles" });
     }
   })
 );
