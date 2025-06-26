@@ -1,4 +1,3 @@
-import RegisterInformationCenter from "@pages/InformationCenters/RegisterInformationCenter";
 import { Suspense, lazy } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 
@@ -12,6 +11,16 @@ const ReadDistricts = lazy(
 const ViewRegisteredDistricts = lazy(
   () => import("@pages/DistrictDetails/ViewRegisteredDistricts")
 );
+const RegisterInformationCenter = lazy(
+  () => import("@pages/InformationCenters/RegisterInformationCenter")
+);
+const ReadCICs = lazy(() => import("@pages/InformationCenters/ReadCICs"));
+const CiCMaps = lazy(() => import("@pages/InformationCenters/CicMaps"));
+
+const ViewRegisteredCIC = lazy(
+  () => import("@pages/InformationCenters/ViewRegisteredCIC")
+);
+
 
 function App() {
   return (
@@ -30,8 +39,22 @@ function App() {
             />
 
             <Route
+              path="/registeredDistrict/:districtId/registeredCiC/viewInMaps"
+              element={<CiCMaps />}
+            ></Route>
+            <Route
+              path="/registeredDistrict/:districtId/registeredCiC/readCICS"
+              element={<ReadCICs />}
+            ></Route>
+
+            <Route
               path="/registeredDistrict/:districtId/registerCiC"
               element={<RegisterInformationCenter />}
+            />
+
+            <Route
+              path="/registeredDistrict/:districtId/registeredCiC/:cicId"
+              element={<ViewRegisteredCIC />}
             />
           </Routes>
         </BrowserRouter>

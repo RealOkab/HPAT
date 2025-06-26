@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from "react";
 import FetchGPS from "@hooks/fetchGPS";
 import { useParams } from "react-router-dom";
-import { useCustomFetch } from "@hooks/useCustomFetch"; // Assuming you have a custom hook for handling POST requests
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 export default function RegisterInformationCenter() {
+  const navigate = useNavigate();
   const { districtId } = useParams<{ districtId: string }>();
 
   const { location, error, success } = FetchGPS();
   const [errorState, setErrorState] = useState<string | null>();
-  const { APICall } = useCustomFetch();
   const url = `http://localhost:5000/hpat/registeredDistrict/${districtId}/registerCiC`;
 
   // Fetching all districts to display in the form
@@ -40,7 +41,15 @@ export default function RegisterInformationCenter() {
       subDistrict: form.subDistrict.value?.trim(),
       description: form.description.value?.trim(),
     };
-    APICall(url, "post", formData);
+    axios.post(url, formData).then((response) => {
+      console.log("Response:", response.data);
+      navigate(
+        `/registeredDistrict/${districtId}/registeredCiC/${response.data.newCiC._id}`
+      );
+      if (response.data.success) {
+        setErrorState(null);
+      }
+    });
 
     form.reset();
   };

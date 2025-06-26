@@ -80,10 +80,14 @@ function ViewRegisteredDistricts() {
               onClick={() => navigate("/registerDistricts/viewAll")}
               className=" mt-4 mr-4 w-[70%] bg-blue-600 text-white font-semibold py-2 rounded-lg shadow-md hover:bg-blue-700 transition-transform transform hover:scale-105"
             >
-              View Registered Districts
+              Back
             </Buttons>
             <Buttons
-              onClick={() => navigate("/registerDistricts/viewAll")}
+              onClick={() =>
+                navigate(
+                  `/registeredDistrict/${districtId}/registeredCiC/readCICS`
+                )
+              }
               className="w-[30%] mt-4 bg-green-600 text-white font-semibold py-2 rounded-lg shadow-md hover:bg-green-700 transition-transform transform hover:scale-105"
             >
               View CiCs

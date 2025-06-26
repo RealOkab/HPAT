@@ -23,6 +23,16 @@ const InformationCenterSchema = new Schema({
     type: String,
     required: true,
   },
+  operatorsContact: {
+    type: String,
+  },
+
+  jinglePlayer: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "JinglePlayer",
+    },
+  ],
 });
 
 export default mongoose.model("InformationCenter", InformationCenterSchema);

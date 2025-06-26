@@ -131,9 +131,8 @@ app.post(
   })
 );
 
-
 app.get(
-  "/hpat/registeredDistrict/:districtId/registeredCiC/:informationCenterId/view",
+  "/hpat/registeredDistrict/:districtId/registeredCiC",
   handleAsync(async (req: Request, res: Response) => {
     const { districtId, informationCenterId } = req.params;
 
@@ -147,23 +146,50 @@ app.get(
         return res.status(404).json({ message: "District not found" });
       }
 
-      const informationCenter = district.informationCenters.find(
-        (ic) => ic._id.toString() === informationCenterId
-      );
-
-      if (!informationCenter) {
-        return res.status(404).json({ message: "Information Center not found" });
-      }
-
-      res.status(200).json(informationCenter);
+      res.status(200).json(district);
     } catch (error) {
       console.error("Error fetching Information Center:", error);
-      res
-        .status(500)
-        .json({ message: "An error occurred while fetching the Information Center" });
+      res.status(500).json({
+        message: "An error occurred while fetching the Information Center",
+      });
     }
   })
-);  
+);
+
+app.get(
+  "/hpat/registeredDistrict/:districtId/registeredCiC/:cicId",
+  handleAsync(async (req: Request, res: Response) => {
+    const { districtId, cicId } = req.params;
+
+    try {
+      const district = await DistrictSchema.findById(districtId).populate({
+        path: "informationCenters",
+        match: { _id: cicId },
+      });
+
+      if (!district) {
+        return res.status(404).json({ message: "District not found" });
+      }
+
+      const cic = district.informationCenters.find(
+        (cic) => cic._id.toString() === cicId
+      );
+      if (!cic) {
+        return res
+          .status(404)
+          .json({ message: "Information Center not found" });
+      }
+      console.log("Fetched Information Center:", cic);
+      // Return the specific Information Center
+      res.status(200).json(cic);
+    } catch (error) {
+      console.error("Error fetching Information Center:", error);
+      res.status(500).json({
+        message: "An error occurred while fetching the Information Center",
+      });
+    }
+  })
+);
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
